@@ -79,13 +79,18 @@ uv run python -m examples.single_stock_analysis
 运行后会看到输出：
 ```text
 最新状态:
-  UP_LINE: 10.24
-  DOWN_LINE: 7.90
-  MONEY_COND: True
-  BUY_POINT: False
-  FILTER_BUY（买入信号）: False
+  开盘价: 30.01
+  最低价: 29.70
+  最高价: 30.02
+  当前最新价（收盘价）: 29.70
+  策略计算（UP_LINE）: 76.24
+  策略计算（DOWN_LINE）: 75.38
+  策略计算（MONEY_COND）: False
+  策略计算（BUY_POINT）: False
+  🚀 实时计算结果（FILTER_BUY）-买入信号: False
+计算完成！
 ```
-- FILTER_BUY，即代表当前时间的实时买点信号，**true则代表命中买点，false代表未命中（该计算结果，可以进行实盘，策略虽然还存在优化空间，但回测历史胜率在70%以上）**
+- ` 🚀 实时计算结果（FILTER_BUY）-买入信号: False`，代表当前时间的实时买点信号计算结果，**true则代表命中买点，false代表未命中（该计算结果，可以进行实盘，策略回测历史胜率在70%以上，如果要优化可以根据自己的因子进行扩展）**
 - 同时在output/charts目录下能看到相应的买点信号，实时图片中包含了**绿色图标**的buy signal
 - 默认读取config.json的stock_pool第一个元素进行分析，如果要使用批量功能，请使用下文的**股池批量分析**
 

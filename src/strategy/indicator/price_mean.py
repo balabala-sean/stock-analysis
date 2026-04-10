@@ -61,10 +61,10 @@ class PriceMeanIndicator(BaseIndicator):
         # 平滑比例值
         df_result['smoothed_ratio'] = df_result['low_diff_ratio'].ewm(span=n3, adjust=False).mean()
 
-        # 计算滚动最低价（N4 周期内最低价）
+        # 计算滚动最低价：当前及之前 N4 个周期内的最低价
         df_result['rolling_low_min'] = df_result['low'].rolling(window=n4, min_periods=1).min()
 
-        # 当 当前低价 <= 滚动最低价时，使用平滑比例值，否则为 0
+        # 信号触发条件：当前低价触及滚动最低价（即当前点是 N4 周期内的最低点）
         condition = df_result['low'] <= df_result['rolling_low_min']
         df_result['signal_base'] = df_result['smoothed_ratio'].where(condition, 0)
 

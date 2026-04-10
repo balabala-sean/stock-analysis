@@ -28,10 +28,10 @@ class SlowTrendLineIndicator(BaseIndicator):
         # 加权价格：给予收盘价更高权重
         df_result['weighted_price'] = (2 * df_result['close'] + df_result['high'] + df_result['low']) / 4
 
-        # N 周期内的滚动最低价
+        # 当前及之前 N 个周期内的滚动最低价
         df_result['rolling_low_min'] = df_result['low'].rolling(window=n, min_periods=1).min()
 
-        # N 周期内的滚动最高价
+        # 当前及之前 N 个周期内的滚动最高价
         df_result['rolling_high_max'] = df_result['high'].rolling(window=n, min_periods=1).max()
 
         # 计算相对位置指标（类似 KD 指标的 RSV）

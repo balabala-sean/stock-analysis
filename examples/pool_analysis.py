@@ -199,7 +199,7 @@ def analyze_pool():
         print("\n1.🚀 买点扫描-结果：目前没有触发买点的股票")
 
     if watch_signals:
-        print("\n2.🚀 低位扫描-结果：需要关注的股票如下")
+        print("\n2.🚀 低位扫描-结果：建议提前关注的股票如下")
         for r in watch_signals:
             print(f"  - {r['symbol']} {r['name']}")
     else:
