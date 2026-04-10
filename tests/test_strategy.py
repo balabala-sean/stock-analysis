@@ -80,8 +80,8 @@ class TestSlowTrendLineIndicator:
 
         assert 'UP_LINE' in result.columns
         assert 'DOWN_LINE' in result.columns
-        assert 'DUO' in result.columns
-        assert 'KONG' in result.columns
+        assert 'bull_line' in result.columns
+        assert 'bear_line' in result.columns
         assert len(result) == len(df)
 
     def test_calculate_with_custom_n(self):
@@ -99,9 +99,9 @@ class TestSlowTrendLineIndicator:
         calc = SlowTrendLineIndicator()
         result = calc.calculate(df)
 
-        assert 'DY11' not in result.columns
-        assert 'DY22' not in result.columns
-        assert 'DY33' not in result.columns
+        assert 'weighted_price' not in result.columns
+        assert 'rolling_low_min' not in result.columns
+        assert 'rolling_high_max' not in result.columns
 
     def test_get_name(self):
         """测试获取指标名称"""
@@ -129,7 +129,7 @@ class TestPriceMeanIndicator:
 
         assert 'MONEY_COMING' in result.columns
         assert 'MONEY_LIVING' in result.columns
-        assert 'XIAO5' in result.columns
+        assert 'price_mean_signal' in result.columns
         assert len(result) == len(df)
 
     def test_money_coming_values(self):
