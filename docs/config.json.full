@@ -1,0 +1,22 @@
+{
+  "email": {
+    "enabled": true,
+    "smtp_server": "smtp.163.com",
+    "smtp_port": 25,
+    "use_ssl": false,
+    "username": "your_email@163.com",
+    "password": "your_auth_code",
+    "to_addr": ["recipient@example.com"]
+  },
+  "stock_pool": [
+    {"symbol": "600621", "name": "华鑫股份"},
+    {"symbol": "600036", "name": "招商银行", "frequency": 5, "offset": 200},
+    {"symbol": "000001", "name": "平安银行", "frequency": 4, "offset": 500}
+  ],
+  "chart": {
+    "enabled": true
+  },
+  "app_main": {
+    "interval_seconds": 60
+  }
+}

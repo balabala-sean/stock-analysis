@@ -1,0 +1,22 @@
+# Python - 虚拟环境和编译缓存
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# IDE 配置
+.idea/
+.vscode/
+.output/
+*.iml
+
+# 大型数据文件 (如有)
+*.dat
+*.csv
+data/
+
+
+# uv
+uv.lock

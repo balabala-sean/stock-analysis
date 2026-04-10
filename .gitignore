@@ -1,0 +1,33 @@
+# macos
+.DS_Store
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+
+#jetbrains
+.idea
+
+#vscode
+.vscode
+
+
+#uv
+uv.lock
+
+
+#output
+output/charts/*.png
+
+
+# Config files (contain sensitive info)
+config.json
+*.backup

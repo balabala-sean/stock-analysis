@@ -1,0 +1,14 @@
+{
+  "email": {
+    "enabled": false
+  },
+  "stock_pool": [
+    {"symbol": "600621", "name": "华鑫股份"}
+  ],
+  "chart": {
+    "enabled": true
+  },
+  "app_main": {
+    "interval_seconds": 60
+  }
+}
