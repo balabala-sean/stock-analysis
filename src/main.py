@@ -50,6 +50,7 @@ def run_single(fetcher: DataFetcher, symbol: str, name: str, frequency: int = 4,
         'symbol': symbol,
         'name': name,
         'buy_signal': False,
+        'watch_signal': False,
         'filter_buy_count': 0,
         'error': None
     }
@@ -83,7 +84,6 @@ def run_single(fetcher: DataFetcher, symbol: str, name: str, frequency: int = 4,
     print(f"  策略计算（BUY_POINT）: {last_row['BUY_POINT']}")
 
     print(f"  🚀 实时计算结果（FILTER_BUY）-买入信号: {last_row['FILTER_BUY']}")
-    print("计算完成！\n")
 
     # 4. 打印信号汇总
     plotter = Plotter()
@@ -92,19 +92,22 @@ def run_single(fetcher: DataFetcher, symbol: str, name: str, frequency: int = 4,
     # 5. 绘制图表（根据配置决定是否生成）
     if generate_chart:
         save_dir = "output/charts"
-        print(f"正在生成图表，保存至：{save_dir}")
-        plotter.plot_buy_signals(
+        save_path = plotter.plot_buy_signals(
             df=df,
             stock_code=symbol,
             stock_name=name,
             save_dir=save_dir,
-            show=False
+            frequency=frequency,
+            offset=offset
         )
+        if save_path:
+            print(f"图表已保存至：{save_path}")
     else:
         print("图表生成已禁用（config.json: chart.enabled=false）")
 
     # 记录结果
     result['buy_signal'] = bool(last_row['FILTER_BUY'])
+    result['watch_signal'] = (last_row['UP_LINE'] < 15 and last_row['DOWN_LINE'] < 15)
     result['filter_buy_count'] = int((df['FILTER_BUY'] == True).sum())
     result['last_row'] = last_row
     result['df'] = df
@@ -125,7 +128,7 @@ def run_single(fetcher: DataFetcher, symbol: str, name: str, frequency: int = 4,
             buy_points_count=result['filter_buy_count']
         )
 
-    print("完成！\n")
+    print(f" {name}({symbol}) 计算完成！\n")
     return result
 
 
@@ -163,6 +166,7 @@ def run_pool(fetcher: DataFetcher):
 
     results = []
     buy_signals = []
+    watch_signals = []
 
     for i, stock in enumerate(stock_pool, 1):
         symbol = stock.get('symbol')
@@ -180,6 +184,8 @@ def run_pool(fetcher: DataFetcher):
 
         if result['buy_signal']:
             buy_signals.append(result)
+        if result['watch_signal']:
+            watch_signals.append(result)
 
     # 汇总报告
     print(f"\n{'#'*60}")
@@ -187,11 +193,21 @@ def run_pool(fetcher: DataFetcher):
     print(f"{'#'*60}")
     print(f"分析总数：{len(results)}")
     print(f"触发买点：{len(buy_signals)}")
+    print(f"关注信号（UP_LINE和DOWN_LINE均<15）：{len(watch_signals)}")
 
     if buy_signals:
-        print("\n触发买点的股票：")
+        print("\n1.🚀 买点扫描-结果：触发买点的股票如下")
         for r in buy_signals:
             print(f"  - {r['symbol']} {r['name']}")
+    else:
+        print("\n1.🚀 买点扫描-结果：目前没有触发买点的股票")
+
+    if watch_signals:
+        print("\n2.🚀 低位扫描-需要关注的股票如下")
+        for r in watch_signals:
+            print(f"  - {r['symbol']} {r['name']}")
+    else:
+        print("\n2.🚀 低位扫描-需要关注的股票：目前没有运行至低位需要关注的股票")
 
     print(f"\n{'#'*60}\n")
 

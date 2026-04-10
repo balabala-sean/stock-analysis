@@ -15,6 +15,31 @@ import mplfinance as mpf
 from pandas import DataFrame
 
 
+# K 线周期映射表
+FREQUENCY_MAP = {
+    0: '1分钟',
+    1: '5分钟',
+    2: '15分钟',
+    3: '60分钟',
+    4: '日线',
+    5: '周线',
+    6: '月线'
+}
+
+
+def get_frequency_name(frequency: int) -> str:
+    """
+    将 frequency 数值转换为周期名称
+
+    Args:
+        frequency: K线周期代码 (0-6)
+
+    Returns:
+        str: 周期名称，如 '日线'、'60分钟' 等
+    """
+    return FREQUENCY_MAP.get(frequency, f'周期{frequency}')
+
+
 def _get_chinese_font() -> str:
     """根据操作系统返回合适的中文字体"""
     system = platform.system()
@@ -46,6 +71,8 @@ class Plotter:
         show: bool = True,
         figsize: tuple = (20, 12),
         buy_markers: Optional[DataFrame] = None,
+        frequency: int = 4,
+        offset: int = 300,
     ):
         """
         绘制带信号标记的 K 线图
@@ -57,6 +84,8 @@ class Plotter:
             show: 是否显示图表
             figsize: 图表大小
             buy_markers: 买入信号标记数据（需包含 'low' 列）
+            frequency: K线周期代码，用于显示周期名称
+            offset: K线数量
         """
         addplots = []
 
@@ -74,9 +103,66 @@ class Plotter:
                     marker='*',
                     markersize=150,
                     color='darkgreen',
-                    label='Buy'
+                    label='Buy',
+                    panel=0  # 主K线图区域
                 )
                 addplots.append(ap_buy)
+
+        # 添加指标到独立区域（panel=2），所有指标共享Y轴
+        # 先添加 UP_LINE/DOWN_LINE（值范围0-100），确保Y轴范围正确
+        if 'UP_LINE' in df.columns:
+            # UP_LINE - 红色实线
+            ap_up = mpf.make_addplot(
+                df['UP_LINE'],
+                type='line',
+                color='darkred',
+                width=1.5,
+                label='UP_LINE',
+                panel=2,
+                ylabel='指标'
+            )
+            addplots.append(ap_up)
+
+        if 'DOWN_LINE' in df.columns:
+            # DOWN_LINE - 蓝色实线
+            ap_down = mpf.make_addplot(
+                df['DOWN_LINE'],
+                type='line',
+                color='darkblue',
+                width=1.5,
+                label='DOWN_LINE',
+                panel=2
+            )
+            addplots.append(ap_down)
+
+        # 处理 MONEY_COMING 和 MONEY_LIVING：大于5的值显示为10，值为0时不显示
+        if 'MONEY_COMING' in df.columns:
+            money_coming = df['MONEY_COMING'].copy()
+            money_coming = money_coming.apply(lambda x: 10 if x > 5 else x if pd.notna(x) and x > 0 else np.nan)
+            # MONEY_COMING - 红色柱状图
+            ap_coming = mpf.make_addplot(
+                money_coming,
+                type='bar',
+                color='red',
+                width=0.8,
+                label='MONEY_COMING',
+                panel=2
+            )
+            addplots.append(ap_coming)
+
+        if 'MONEY_LIVING' in df.columns:
+            money_living = df['MONEY_LIVING'].copy()
+            money_living = money_living.apply(lambda x: 10 if x > 5 else x if pd.notna(x) and x > 0 else np.nan)
+            # MONEY_LIVING - 绿色柱状图
+            ap_living = mpf.make_addplot(
+                money_living,
+                type='bar',
+                color='green',
+                width=0.8,
+                label='MONEY_LIVING',
+                panel=2
+            )
+            addplots.append(ap_living)
 
         # 绘制图表
         kwargs = {
@@ -89,7 +175,8 @@ class Plotter:
             'figscale': 1.5,
             'figsize': figsize,
             'datetime_format': '%Y-%m-%d',
-            'xrotation': 45
+            'xrotation': 45,
+            'panel_ratios': (4, 1, 1.5)  # K线:成交量:指标区 = 4:1:1.5
         }
 
         # 只有存在附加图表时才传递 addplot 参数
@@ -107,7 +194,8 @@ class Plotter:
         stock_code: str = '',
         stock_name: str = '',
         save_dir: Optional[str] = None,
-        show: bool = True
+        frequency: int = 4,
+        offset: int = 300,
     ):
         """
         绘制策略信号图
@@ -117,12 +205,16 @@ class Plotter:
             stock_code: 股票代码
             stock_name: 股票名称
             save_dir: 保存目录，如 None 则不保存
-            show: 是否显示图表
+            frequency: K线周期代码 (0-6)
+            offset: K线数量
         """
         # 创建买入信号标记
         buy_markers = df[df['FILTER_BUY'] == True] if 'FILTER_BUY' in df.columns else None
 
-        title = f'{stock_code} - {stock_name} DFB 信号分析' if stock_code else 'DFB 信号分析'
+        # 构建标题，包含周期和K线数量信息
+        freq_name = get_frequency_name(frequency)
+        kline_count = len(df)
+        title = f'{stock_code} - {stock_name} [{freq_name} K线:{kline_count}条]' if stock_code else f'信号分析 [{freq_name} K线:{kline_count}条]'
 
         save_path = None
         if save_dir:
@@ -134,7 +226,9 @@ class Plotter:
             df=df,
             title=title,
             save_path=save_path,
-            buy_markers=buy_markers
+            buy_markers=buy_markers,
+            frequency=frequency,
+            offset=offset
         )
 
         return save_path

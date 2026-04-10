@@ -3,6 +3,7 @@
 ## 创建配置文件
 
 首次使用前，需要从示例文件创建配置文件：
+> **我在config.json.full，config.json.minimal中，故意对stock_pool的第一个元素做了不同的配置，用以理解不同的周期，实际量化交易也是用不同的周期计算来控制频率，参看下文对frequency的介绍**
 
 ```bash
 cp docs/config.json.full config.json

@@ -10,21 +10,20 @@
 import sys
 import os
 import argparse
-import json
 from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # 获取项目根目录
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_FILE = os.path.join(PROJECT_ROOT, "config.json")
 
 from src.data_kline import DataFetcher
 from src.strategy import BuySignalCalculator
 from src.visualization import Plotter
 from src.notify import EmailNotifier
+from src.conf import get_stock_pool, is_email_enabled, is_generate_chart_enabled
 
 
-def analyze_single_stock(symbol: str, name: str, frequency: int = 4, offset: int = 300, notify: bool = False, show_chart: bool = True):
+def analyze_single_stock(symbol: str, name: str, frequency: int = 4, offset: int = 300, notify: bool = None, generate_chart: bool = None):
     """
     单只股票完整分析
 
@@ -33,14 +32,22 @@ def analyze_single_stock(symbol: str, name: str, frequency: int = 4, offset: int
         name: 股票名称
         frequency: K 线周期 (默认日线)
         offset: 数据条数 (默认 300 条)
-        notify: 是否启用邮件通知
-        show_chart: 是否生成图表
+        notify: 是否启用邮件通知（None 时从 config.json 读取）
+        generate_chart: 是否生成图表（None 时从 config.json 读取）
 
     Returns:
         dict: 分析结果
     """
+    # 从配置文件读取默认值
+    if notify is None:
+        notify = is_email_enabled()
+    if generate_chart is None:
+        generate_chart = is_generate_chart_enabled()
+
     print(f"\n{'='*60}")
     print(f"策略分析：{symbol} - {name} (周期={frequency}, 数据量={offset})")
+    print(f"邮件通知：{'已启用' if notify else '已禁用'}")
+    print(f"生成图表：{'已启用' if generate_chart else '已禁用'}")
     print(f"{'='*60}\n")
 
     result = {
@@ -76,18 +83,20 @@ def analyze_single_stock(symbol: str, name: str, frequency: int = 4, offset: int
     plotter.print_signal_summary(df, symbol, name)
 
     # 5. 绘制图表
-    if show_chart:
+    if generate_chart:
         save_dir = os.path.join(PROJECT_ROOT, "output/charts")
-        print(f"正在生成图表，保存至：{save_dir}")
-        plotter.plot_buy_signals(
+        save_path = plotter.plot_buy_signals(
             df=df,
             stock_code=symbol,
             stock_name=name,
             save_dir=save_dir,
-            show=False
+            frequency=frequency,
+            offset=offset
         )
+        if save_path:
+            print(f"图表已保存至：{save_path}")
     else:
-        print("跳过图表生成")
+        print("图表生成已禁用（config.json: chart.enabled=false）")
 
     # 记录结果
     result['buy_signal'] = bool(last_row['FILTER_BUY'])
@@ -126,26 +135,23 @@ def analyze_single_stock(symbol: str, name: str, frequency: int = 4, offset: int
     return result
 
 
-def load_config():
-    """加载配置文件"""
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return None
-
-
 def get_default_stock_from_config():
-    """从 config.json 获取股票池第一个元素"""
-    config = load_config()
-    if config and 'stock_pool' in config and len(config['stock_pool']) > 0:
-        stock = config['stock_pool'][0]
-        return stock.get('symbol'), stock.get('name')
-    return None, None
+    """从 config.json 获取股票池第一个元素（含完整配置）"""
+    stock_pool = get_stock_pool()
+    if stock_pool and len(stock_pool) > 0:
+        stock = stock_pool[0]
+        return (
+            stock.get('symbol'),
+            stock.get('name'),
+            stock.get('frequency', 4),
+            stock.get('offset', 300)
+        )
+    return None, None, 4, 300
 
 
 if __name__ == '__main__':
-    # 默认只读取第一个stock_pool的元素进行分析
-    symbol, name = get_default_stock_from_config()
+    # 从 config.json 读取股票池第一个元素的完整配置
+    symbol, name, frequency, offset = get_default_stock_from_config()
 
     if symbol is None or name is None:
         print("配置有误，请检查config.json的stock_pool数组是否包含元素，详情可查看文档：docs/CONFIG.md")
@@ -154,5 +160,6 @@ if __name__ == '__main__':
     analyze_single_stock(
         symbol=symbol,
         name=name,
-        show_chart=True
+        frequency=frequency,
+        offset=offset
     )
