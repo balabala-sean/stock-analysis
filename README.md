@@ -138,7 +138,7 @@ kill <PID>
 1. 从 `config.json` 读取股池配置
 2. 遍历分析每只股票（使用各自的 `frequency` 和 `offset`）
 3. 根据 `chart.enabled` 决定是否生成图表
-4. 如果 `email.enabled=true` 且触发买点，发送邮件通知，如果希望当天的email通知要对信号过滤去重，可以自行加cache进行去重和拦截
+4. 如果 `email.enabled=true` 且触发买点，发送邮件通知，**如果希望当天的email通知要对信号过滤去重，可以自行加cache进行去重和拦截**
 5. 如果 `app_main.interval_seconds>10`，等待指定秒数后重复执行
 
 
