@@ -91,8 +91,8 @@ uv run python -m examples.single_stock_analysis
 计算完成！
 ```
 - ` 🚀 实时计算结果（FILTER_BUY）-买入信号: False`，代表当前时间的实时买点信号计算结果，**true则代表命中买点，false代表未命中（该策略信号在回测历史三年走势时，胜率在70%以上，且在2025年进行了实盘交通验证，如果要优化可以根据自己的因子进行扩展，如需进行实盘交易要关注股池的选择）**
-- 同时在output/charts目录下能看到相应的买点信号，实时图片中包含了**绿色图标**的buy signal
-- 默认读取config.json的stock_pool第一个元素进行分析，如果要使用批量功能，请使用下文的**股池批量分析**
+- 在output/charts目录下会生成实时分析的图片，图片中标注了买点信号，是**绿色图标**的五角星（buy signal）
+- 单只个股分析，如果config.json中的stock_pool是多个元素，会默认读取config.json的stock_pool第一个元素进行分析，如果要使用批量功能，请使用下文的**股池批量分析**
 
 #### 股池批量分析
 
