@@ -164,7 +164,7 @@ def get_interval_seconds(config_path: str = "config.json") -> int:
     interval_seconds = app_main_config.get('interval_seconds', 60)
 
     # 验证：如果启用后台运行，间隔必须大于 10 秒
-    if 0< interval_seconds < 10:
+    if 0 < interval_seconds < 10:
         raise ValueError(
             f"配置错误：app_main.interval_seconds = {interval_seconds}，"
             f"后台运行间隔必须大于 10 秒（当前设置过短会导致频繁请求被服务器拒绝）"

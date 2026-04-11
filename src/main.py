@@ -226,7 +226,7 @@ def main():
     fetcher = DataFetcher()
 
     try:
-        if run_interval <= 0:
+        if run_interval < 0:
             # 单次运行模式
             print("运行模式：单次执行")
             run_pool(fetcher)
