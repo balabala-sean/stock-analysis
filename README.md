@@ -344,7 +344,7 @@ strategy/
 
 ### 扩展指南
 
-**添加新指标：**
+**添加自定义的指标因子：**
 
 ```python
 from src.strategy import BaseIndicator
@@ -352,7 +352,7 @@ from pandas import DataFrame
 
 class MyCustomIndicator(BaseIndicator):
     def calculate(self, df: DataFrame, **kwargs) -> DataFrame:
-        # 实现指标计算逻辑
+        # 实现指标因子计算逻辑
         df['MY_INDICATOR'] = ...
         return df
 ```
