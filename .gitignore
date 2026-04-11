@@ -19,13 +19,9 @@ wheels/
 #vscode
 .vscode
 
-
-#uv
-uv.lock
-
-
 #output
 output/charts/*.png
+output/charts/*.log
 
 
 # Config files (contain sensitive info)
