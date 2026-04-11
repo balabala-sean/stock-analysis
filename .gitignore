@@ -25,7 +25,7 @@ uv.lock
 
 
 #output
-#output/charts/*.png
+output/charts/*.png
 
 
 # Config files (contain sensitive info)
